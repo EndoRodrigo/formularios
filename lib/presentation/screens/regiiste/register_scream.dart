@@ -13,8 +13,19 @@ class RegisterScream extends StatelessWidget {
   }
 }
 
-class _RegisterView extends StatelessWidget {
+class _RegisterView extends StatefulWidget {
   const new({super.key});
+
+  @override
+  State<_RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<_RegisterView> {
+  final _fromKey = GlobalKey<FormState>();
+
+  String username = '';
+  String email = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +33,66 @@ class _RegisterView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              FlutterLogo(size: 100),
-              CustomTextFormField(label:'Nombre del usuario',),
-              SizedBox(height: 10,),
-              CustomTextFormField(label: 'Correo electroncio',),
-              SizedBox(height: 10,),
-              CustomTextFormField(label: 'Contraseña',obscureText: true,),
+          child: Form(
+            key: _fromKey,
+            child: Column(
+              children: [
+                FlutterLogo(size: 100),
+                CustomTextFormField(
+                  label: 'Nombre del usuario',
+                  onChanged: (value) => username = value,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo requerido';
+                    }
+                    if (value.trim().isEmpty) return 'Campos reuqrido';
+                    if (value.length < 5) return 'Mas de 6 letras';
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                CustomTextFormField(
+                  label: 'Correo electroncio',
+                  onChanged: (value) => email = value,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo requerido';
+                    }
+                    if (value.trim().isEmpty) return 'Campos reuqrido';
+                    final emailRegExp = RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    );
+                    if(!emailRegExp.hasMatch(value)) return 'Formato de correo invalido';
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                CustomTextFormField(
+                  label: 'Contraseña',
+                  obscureText: true,
+                  onChanged: (value) => password = value,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo requerido';
+                    }
+                    if (value.trim().isEmpty) return 'Campos reuqrido';
+                    if (value.length < 5) return 'Mas de 6 letras';
+                    return null;
+                  },
+                ),
 
+                SizedBox(height: 20),
 
-              SizedBox(height: 20),
-
-              FilledButton.tonalIcon(
-                onPressed: () {},
-                icon: Icon(Icons.save),
-                label: Text('Guardar'),
-              ),
-            ],
+                FilledButton.tonalIcon(
+                  onPressed: () {
+                    final isValid = _fromKey.currentState!.validate();
+                    if (!isValid) return;
+                  },
+                  icon: Icon(Icons.save),
+                  label: Text('Guardar'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -48,9 +101,7 @@ class _RegisterView extends StatelessWidget {
 }
 
 class _RegisterForm extends StatelessWidget {
-  const new({
-    super.key,
-  });
+  const new({super.key});
 
   @override
   Widget build(BuildContext context) {
